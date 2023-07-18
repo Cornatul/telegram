@@ -4,6 +4,7 @@ namespace Cornatul\Telegram\Commands;
 
 use Cornatul\Telegram\Services\TelegramService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use Telegram\Bot\Exceptions\TelegramSDKException;
 
 class ReadTelegramMessages extends Command
@@ -26,7 +27,7 @@ class ReadTelegramMessages extends Command
      * Execute the console command.
      * @throws TelegramSDKException
      */
-    public function handle(TelegramService $telegram)
+    public final function handle(TelegramService $telegram):void
     {
         $this->info('Reading the latest messages from the Telegram and action on them.');
 
@@ -36,8 +37,31 @@ class ReadTelegramMessages extends Command
             'timeout' => 0,
         ]);
 
-        foreach ($messages as $message) {
-            $this->info($message->getMessage()->get('text'));
+        if (count($messages) > 0) {
+            $message = $messages[0];
+
+            $chatMessage = $message->getMessage()->get('text');
+
+            $url = $this->extractUrl($chatMessage);
+
+            if ($url) {
+                $this->info('URL found: ' . $url);
+            }
+
         }
+
+    }
+
+    private function extractUrl(string $string):?string
+    {
+        $pattern = '/\bhttps?:\/\/\S+/i';
+
+        // Perform a regular expression match to find the URL in the string
+        if (preg_match($pattern, $string, $matches)) {
+            return $matches[0];
+        }
+
+        // Return null if no valid URL is found in the string
+        return null;
     }
 }
