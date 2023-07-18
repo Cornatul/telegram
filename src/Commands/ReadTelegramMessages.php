@@ -30,11 +30,14 @@ class ReadTelegramMessages extends Command
     {
         $this->info('Reading the latest messages from the Telegram and action on them.');
 
-        $messages = $telegram->getUpdates();
+        $messages = $telegram->getUpdates([
+            'offset' => -1,
+            'limit' => 1,
+            'timeout' => 0,
+        ]);
 
         foreach ($messages as $message) {
-            $this->info($message->getMessage());
+            $this->info($message->getMessage()->get('text'));
         }
-
     }
 }

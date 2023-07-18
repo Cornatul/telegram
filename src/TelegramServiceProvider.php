@@ -10,8 +10,6 @@ class TelegramServiceProvider extends ServiceProvider
 {
         public final function boot(): void
         {
-            //register route file
-            $this->loadRoutesFrom(__DIR__.'/../routes/bot.php');
             //register config file
             $this->publishes([
                 __DIR__.'/Config/telegram.php' => config_path('telegram.php'),
