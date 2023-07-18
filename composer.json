@@ -1,0 +1,26 @@
+{
+    "name": "cornatul/telegram",
+    "description": "Telegram robot that will allow the user to share stuff on random media accounts channels",
+    "keywords": ["laravel", "telegram", "notification", "channel"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Stlzobot",
+            "email": "stefan@LzoMedia.com"
+        }
+    ],
+	"require": {
+        "php": "^8.1",
+        "irazasyed/telegram-bot-sdk": "dev-develop"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cornatul\\Telegram\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Cornatul\\Slack\\Tests\\": "tests/"
+        }
+    }
+}
