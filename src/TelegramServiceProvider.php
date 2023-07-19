@@ -2,7 +2,9 @@
 
 namespace Cornatul\Telegram;
 
+use Cornatul\Telegram\Commands\ReadTelegramMessages;
 use Cornatul\Telegram\Services\TelegramService;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 
@@ -14,6 +16,11 @@ class TelegramServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/Config/telegram.php' => config_path('telegram.php'),
             ], 'config');
+
+            $this->app->booted(function () {
+                $schedule = $this->app->make(Schedule::class);
+                $schedule->command(ReadTelegramMessages::class)->everySecond();
+            });
         }
         public final function register(): void
         {

@@ -2,8 +2,10 @@
 
 namespace Cornatul\Telegram\Commands;
 
+use Cornatul\Telegram\Jobs\TelegramExtractorJob;
 use Cornatul\Telegram\Services\TelegramService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Telegram\Bot\Exceptions\TelegramSDKException;
 
@@ -26,6 +28,7 @@ class ReadTelegramMessages extends Command
     /**
      * Execute the console command.
      * @throws TelegramSDKException
+     * @throws \Exception
      */
     public final function handle(TelegramService $telegram):void
     {
@@ -44,15 +47,35 @@ class ReadTelegramMessages extends Command
 
             $url = $this->extractUrl($chatMessage);
 
-            if ($url) {
-                $this->info('URL found: ' . $url);
+
+            if (Cache::has("telegram_url_{$url}") === true) {
+
+               $this->output->success('This url has already been processed');
+               return;
             }
+
+
+            if ($url) {
+
+                Cache::put("telegram_url_{$url}", $url);
+
+
+                $this->info('URL found: ' . $url);
+
+                $chatID = $message->getMessage()->get('chat')['id'];
+
+                dispatch(new TelegramExtractorJob($chatID, $url));
+            }
+
 
         }
 
     }
 
-    private function extractUrl(string $string):?string
+    /**
+     * @throws \Exception
+     */
+    private function extractUrl(string $string):string
     {
         $pattern = '/\bhttps?:\/\/\S+/i';
 
@@ -62,6 +85,6 @@ class ReadTelegramMessages extends Command
         }
 
         // Return null if no valid URL is found in the string
-        return null;
+		throw new \Exception('No url found in the message skipping...');
     }
 }
